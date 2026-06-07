@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-background text-text antialiased;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-surface/80 backdrop-blur-md border border-white/10 shadow-xl rounded-2xl;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 bg-gradient-to-r from-primary to-accent text-white font-medium rounded-lg shadow-lg hover:shadow-primary/30 transition-all active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-surface hover:bg-surface/70 text-text font-medium rounded-lg border border-white/10 transition-all active:scale-95;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2 bg-background/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-text placeholder:text-muted transition-all;
+  }
+}
