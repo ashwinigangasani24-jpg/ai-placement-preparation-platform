@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Play, CheckCircle2, MessageSquare, AlertTriangle, XCircle, BarChart3, AlertCircle, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, CheckCircle2, AlertTriangle, XCircle, BarChart3, AlertCircle, BookOpen } from 'lucide-react';
 import api from '../api/axios';
 
 const DOMAINS = [

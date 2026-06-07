@@ -1,16 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Briefcase, FileText, User, MessageSquare, LayoutDashboard } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { FileText, User, MessageSquare, LayoutDashboard } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Resume from './pages/Resume';
 import Interview from './pages/Interview';
 import Login from './pages/Login';
 
-const NavigationLink = ({ to, icon: Icon, children }) => {
+const NavigationLink = ({ to, icon: Icon, children }: any) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isActive = location.pathname === to;
 
-  const handleClick = (e) => {
+  const handleClick = (e: any) => {
     e.preventDefault();
     if (sessionStorage.getItem('isInterviewing') === 'true') {
       alert("Please finish or terminate your current interview before navigating away.");

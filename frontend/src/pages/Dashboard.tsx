@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Activity, Target, Zap, Clock, CheckCircle2, XCircle, FileText } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight, Activity, Target, Zap, Clock, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 

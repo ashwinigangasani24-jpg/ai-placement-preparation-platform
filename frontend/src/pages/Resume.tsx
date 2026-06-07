@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UploadCloud, FileText, CheckCircle2, AlertTriangle, Search, Star, Target, Briefcase, BookOpen, Layout } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle2, AlertTriangle, Search, Star, Target, Briefcase, Layout } from 'lucide-react';
 import api from '../api/axios';
 
 export default function Resume() {
