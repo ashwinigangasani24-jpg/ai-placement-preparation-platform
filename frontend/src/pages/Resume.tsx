@@ -26,14 +26,18 @@ export default function Resume() {
       formData.append('file', file);
       formData.append('job_description', jobDescription);
       
-      const res = await api.post('/resume/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await api.post('/resume/upload', formData);
       
       setResults(res.data);
     } catch (error: any) {
       console.error(error);
-      setErrorMsg(error.response?.data?.detail || "An error occurred while analyzing the resume.");
+      let errDetail = error.response?.data?.detail;
+      if (Array.isArray(errDetail)) {
+        errDetail = errDetail.map((e: any) => `${e.loc?.join('.') || 'Field'}: ${e.msg}`).join(', ');
+      } else if (typeof errDetail === 'object' && errDetail !== null) {
+        errDetail = JSON.stringify(errDetail);
+      }
+      setErrorMsg(errDetail || "An error occurred while analyzing the resume.");
     } finally {
       setIsUploading(false);
     }
