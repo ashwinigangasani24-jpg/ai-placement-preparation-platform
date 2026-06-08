@@ -2,21 +2,27 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from app.api import auth, resume, interview, internships, career, dashboard
-from app.db import models
-from app.db.session import engine
-
 try:
-    models.Base.metadata.create_all(bind=engine)
-except Exception as e:
-    import logging
-    logging.warning(f"Skipping database creation during startup (read-only filesystem or missing DB): {e}")
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.responses import JSONResponse
+    from app.api import auth, resume, interview, internships, career, dashboard
+    from app.db import models
+    from app.db.session import engine
 
-from app.core.config import settings
-import logging
+    try:
+        models.Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        import logging
+        logging.warning(f"Skipping database creation during startup: {e}")
+
+    from app.core.config import settings
+    import logging
+except Exception as e:
+    import traceback
+    print("CRASHED ON IMPORT: ", e)
+    traceback.print_exc()
+    raise
 
 app = FastAPI(
     title="AI Internship & Placement Intelligence Platform",
