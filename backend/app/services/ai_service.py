@@ -59,7 +59,7 @@ class ResumeAnalysisService:
             "matched_skills": ["General matching skills"],
             "missing_skills": ["Review the job description for specific technical requirements"],
             "strengths": ["Resume content was extracted successfully"],
-            "weaknesses": ["Detailed AI analysis is currently unavailable"],
+            "weaknesses": [f"AI Error: {reason}" if reason else "Detailed AI analysis is currently unavailable"],
             "recommendations": [
                 "Ensure resume formatting is clean",
                 "Add clear project sections",
