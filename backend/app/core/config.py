@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     CORS_ORIGINS: List[str] = ["http://localhost:3000"]
     GROQ_API_KEY: Optional[str] = None
-    GROQ_MODEL: str = "llama-3.1-8b-instant"
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

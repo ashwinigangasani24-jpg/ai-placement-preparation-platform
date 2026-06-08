@@ -19,6 +19,7 @@ def get_llm(temperature=0.7):
         model_name=settings.GROQ_MODEL,
         groq_api_key=settings.GROQ_API_KEY,
         temperature=temperature,
+        model_kwargs={"response_format": {"type": "json_object"}}
     )
 
 def extract_json_from_text(text: str) -> dict:
