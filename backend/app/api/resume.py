@@ -13,7 +13,7 @@ from app.services.ai_service import ResumeAnalysisService
 from app.services.vector_store import vector_store_service
 
 router = APIRouter()
-storage_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../storage")
+storage_dir = "/tmp/storage"
 os.makedirs(storage_dir, exist_ok=True)
 
 @router.post("/upload", response_model=ResumeUploadResponse)
