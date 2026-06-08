@@ -39,11 +39,11 @@ async def startup_event():
 
 
 # CORS middleware with explicit preflight handling
-origins = [
+origins = list(dict.fromkeys(settings.CORS_ORIGINS + [
     "https://ai-placement-preparation-platform.vercel.app",
     "http://localhost:5173",
     "http://localhost:3000"
-]
+]))
 
 app.add_middleware(
     CORSMiddleware,

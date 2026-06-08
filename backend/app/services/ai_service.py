@@ -3,6 +3,7 @@ Groq AI Service using LangChain for Resume Analysis, Interview Generation, and C
 """
 
 import json
+import logging
 from typing import Dict, List, Tuple, Optional
 from app.core.config import settings
 from langchain_groq import ChatGroq
@@ -11,6 +12,9 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 import re
 
 def get_llm(temperature=0.7):
+    if not settings.GROQ_API_KEY:
+        raise ValueError("GROQ_API_KEY is not configured")
+
     return ChatGroq(
         model_name=settings.GROQ_MODEL,
         groq_api_key=settings.GROQ_API_KEY,
@@ -40,6 +44,30 @@ def extract_json_from_text(text: str) -> dict:
 
 class ResumeAnalysisService:
     @staticmethod
+    def _fallback_analysis(reason: str = "") -> Dict:
+        if reason:
+            logging.warning("Using fallback resume analysis: %s", reason)
+
+        return {
+            "ats_score": 50,
+            "skills_match": 50,
+            "experience_match": 50,
+            "keyword_match": 50,
+            "education_match": 50,
+            "formatting_score": 50,
+            "matched_skills": ["General matching skills"],
+            "missing_skills": ["Review the job description for specific technical requirements"],
+            "strengths": ["Resume content was extracted successfully"],
+            "weaknesses": ["Detailed AI analysis is currently unavailable"],
+            "recommendations": [
+                "Ensure resume formatting is clean",
+                "Add clear project sections",
+                "Include skills and keywords from the job description",
+            ],
+            "recommended_roles": ["Intern"]
+        }
+
+    @staticmethod
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def analyze_resume(resume_text: str, job_description: str) -> Dict:
         if not resume_text or len(resume_text.strip()) < 50:
@@ -57,8 +85,10 @@ class ResumeAnalysisService:
                 "recommendations": ["Resume appears to be empty or too short"],
                 "recommended_roles": ["Internship Positions"]
             }
+
+        if not settings.GROQ_API_KEY:
+            return ResumeAnalysisService._fallback_analysis("GROQ_API_KEY is not configured")
         
-        llm = get_llm(temperature=0.1)
         prompt = PromptTemplate.from_template(
             "Analyze this resume against the provided Job Description.\n\n"
             "Resume Content:\n{resume_text}\n\n"
@@ -79,11 +109,11 @@ class ResumeAnalysisService:
             "}}\n"
         )
         
-        chain = prompt | llm
-        response = chain.invoke({"resume_text": resume_text[:4000], "job_description": job_description[:4000]})
-        content = response.content
-        
         try:
+            llm = get_llm(temperature=0.1)
+            chain = prompt | llm
+            response = chain.invoke({"resume_text": resume_text[:4000], "job_description": job_description[:4000]})
+            content = response.content
             analysis = extract_json_from_text(content)
             
             # Deterministic calculation
@@ -117,24 +147,13 @@ class ResumeAnalysisService:
                 "recommended_roles": analysis.get("suitable_roles", [])
             }
         except Exception as e:
-            # Fallback
-            return {
-                "ats_score": 50,
-                "skills_match": 50,
-                "experience_match": 50,
-                "keyword_match": 50,
-                "education_match": 50,
-                "formatting_score": 50,
-                "matched_skills": ["General matching skills"],
-                "missing_skills": ["Review the job description for specific technical requirements"],
-                "strengths": ["Basic resume provided"],
-                "weaknesses": ["Could not perform detailed AI analysis"],
-                "recommendations": ["Ensure resume formatting is clean", "Add clear project sections"],
-                "recommended_roles": ["Intern"]
-            }
+            return ResumeAnalysisService._fallback_analysis(str(e))
 
     @staticmethod
     def calculate_placement_readiness(resume_text: str, user_profile: str = "") -> Tuple[int, str]:
+        if not settings.GROQ_API_KEY:
+            return (65, "AI placement readiness is currently unavailable because GROQ_API_KEY is not configured.")
+
         llm = get_llm(temperature=0.5)
         prompt = PromptTemplate.from_template(
             "Based on this resume, assess the candidate's readiness for internship placement:\n\n"

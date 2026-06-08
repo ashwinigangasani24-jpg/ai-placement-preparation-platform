@@ -26,24 +26,28 @@ def upload_resume(
     if file.content_type not in ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only PDF and DOCX resumes are supported")
 
-    filename = f"resume_{current_user.id}_{file.filename}"
+    original_filename = os.path.basename(file.filename or "resume")
+    filename = f"resume_{current_user.id}_{original_filename}"
     file_path = os.path.join(storage_dir, filename)
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
 
     try:
         extracted_text = ""
-        if file.filename.endswith(".pdf"):
+        lower_filename = original_filename.lower()
+        if lower_filename.endswith(".pdf"):
             reader = PdfReader(file_path)
             extracted_text = "\n".join(page.extract_text() or "" for page in reader.pages)
-        elif file.filename.endswith(".docx"):
+        elif lower_filename.endswith(".docx"):
             doc = docx.Document(file_path)
             extracted_text = "\n".join(paragraph.text for paragraph in doc.paragraphs)
+        else:
+            raise ValueError("Unsupported file extension. Please upload a PDF or DOCX file.")
             
         if len(extracted_text.strip()) < 50:
             raise ValueError("Extracted text is too short. Resume might be an image-based PDF or empty.")
             
-        logging.info(f"Extracted {len(extracted_text)} characters from {file.filename}")
+        logging.info(f"Extracted {len(extracted_text)} characters from {original_filename}")
         logging.info(f"Job description length: {len(job_description)} characters")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Failed to extract text from resume: {str(e)}")
@@ -71,13 +75,16 @@ def upload_resume(
         db.commit()
         db.refresh(resume)
 
-        # Add to vector store for semantic search
-        vector_store_service.add_resume(
-            resume_id=resume.id,
-            user_id=current_user.id,
-            text=extracted_text,
-            metadata={"filename": file.filename}
-        )
+        # Semantic search indexing is best-effort and should not block analysis.
+        try:
+            vector_store_service.add_resume(
+                resume_id=resume.id,
+                user_id=current_user.id,
+                text=extracted_text,
+                metadata={"filename": original_filename}
+            )
+        except Exception as e:
+            logging.warning(f"Resume indexed analysis saved, but semantic indexing failed: {str(e)}")
 
         return ResumeUploadResponse(
             ats_score=analysis["ats_score"],

@@ -23,7 +23,7 @@ class InternshipResponse(BaseModel):
     application_date: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 @router.post("/", response_model=InternshipResponse)
