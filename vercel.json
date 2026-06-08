@@ -15,10 +15,6 @@
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index"
-    },
-    {
       "source": "/(.*)",
       "destination": "/frontend/dist/index.html"
     }
