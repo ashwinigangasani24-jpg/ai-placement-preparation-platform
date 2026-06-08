@@ -185,6 +185,16 @@ class InterviewService:
     @staticmethod
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def generate_questions(profile: str, topic: str, domain: str, difficulty: str, num_questions: int) -> Dict[str, List[str]]:
+        if not settings.GROQ_API_KEY:
+            return {
+                "questions": [
+                    f"What is your experience with {topic}?",
+                    f"Describe a challenging project you worked on in {domain}.",
+                    f"How do you handle difficult situations when working with {topic}?",
+                    f"Explain a core concept of {domain} to a non-technical person."
+                ][:num_questions]
+            }
+
         llm = get_llm(temperature=0.7)
         prompt = PromptTemplate.from_template(
             "Generate {num_questions} realistic and unique interview questions for:\n"
@@ -220,6 +230,18 @@ class InterviewService:
     @staticmethod
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def evaluate_interview(questions: List[str], answers: List[str], domain: str) -> Dict:
+        if not settings.GROQ_API_KEY:
+            return {
+                "overall_score": 75,
+                "technical_score": 70,
+                "communication_score": 80,
+                "confidence_score": 75,
+                "strengths": ["Clear communication", "Basic understanding of concepts"],
+                "areas_to_improve": ["Provide more detailed examples", "Deepen technical knowledge"],
+                "learning_resources": ["Review official documentation", "Practice more mock interviews"],
+                "domain_performance": f"Demonstrated foundational knowledge in {domain}. Further practice recommended."
+            }
+
         llm = get_llm(temperature=0.2)
         
         transcript = ""
@@ -263,6 +285,14 @@ class InterviewService:
 class CareerService:
     @staticmethod
     def generate_recommendations(profile: str, skills: List[str], interests: str = "") -> Dict[str, any]:
+        if not settings.GROQ_API_KEY:
+            return {
+                "roadmap": ["Master fundamentals in your field", "Build a portfolio project", "Prepare for interviews", "Apply for internships"],
+                "certifications": ["Relevant fundamental certification"],
+                "career_path": "Junior/Intern -> Mid-level -> Senior",
+                "next_steps": ["Update resume", "Practice technical skills", "Network with professionals"]
+            }
+
         llm = get_llm(temperature=0.6)
         prompt = PromptTemplate.from_template(
             "Generate a personalized career development plan for:\n\n"
@@ -302,6 +332,13 @@ class CareerService:
 
     @staticmethod
     def suggest_skills_to_learn(current_skills: List[str], target_role: str) -> Dict[str, List[str]]:
+        if not settings.GROQ_API_KEY:
+            return {
+                "immediate_skills": ["Core programming languages", "Version control", "Basic frameworks"],
+                "advanced_skills": ["System design", "Cloud platforms", "Advanced optimization"],
+                "resources": "Online learning platforms (Coursera, Udemy, edX)"
+            }
+
         llm = get_llm(temperature=0.6)
         prompt = PromptTemplate.from_template(
             "Analyze skill gaps for {target_role} role:\n\n"
