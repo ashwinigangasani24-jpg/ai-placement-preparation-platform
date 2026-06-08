@@ -60,6 +60,36 @@ async def health():
     return {"status": "ok", "service": "placement-intelligence-api"}
 
 
+@app.get("/api/diagnose")
+async def diagnose_groq():
+    """Diagnostic endpoint to safely test Groq API configuration."""
+    from app.core.config import settings
+    
+    key = settings.GROQ_API_KEY
+    if not key:
+        return {"status": "error", "message": "GROQ_API_KEY is not found in the environment variables."}
+        
+    diagnostic_info = {
+        "key_found": True,
+        "starts_with_gsk": key.startswith("gsk_"),
+        "has_quotes": key.startswith('"') or key.endswith('"'),
+        "has_spaces": " " in key,
+        "key_length": len(key)
+    }
+    
+    try:
+        from langchain_groq import ChatGroq
+        llm = ChatGroq(model_name=settings.GROQ_MODEL, groq_api_key=key, temperature=0.1)
+        res = llm.invoke("Say hello")
+        diagnostic_info["api_test"] = "Success! Groq replied: " + str(res.content)
+        diagnostic_info["status"] = "ok"
+    except Exception as e:
+        diagnostic_info["api_test"] = "Failed"
+        diagnostic_info["error"] = str(e)
+        diagnostic_info["status"] = "error"
+        
+    return diagnostic_info
+
 @app.get("/")
 async def root():
     """Root endpoint with API documentation link."""
