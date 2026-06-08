@@ -23,6 +23,18 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def use_writable_sqlite_path_on_vercel(cls, value):
+        if (
+            os.getenv("VERCEL")
+            and isinstance(value, str)
+            and value.startswith("sqlite")
+            and "/tmp/" not in value
+        ):
+            return "sqlite:////tmp/placement.db"
+        return value
+
     class Config:
         env_file = str(env_file)
         env_file_encoding = "utf-8"
