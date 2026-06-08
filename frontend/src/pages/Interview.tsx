@@ -87,7 +87,7 @@ export default function Interview() {
       console.error("API Error generating questions:", error);
       let errMsg = "Failed to generate questions. ";
       if (error.code === 'ERR_NETWORK') {
-        errMsg += "Backend server is unreachable. Please ensure it is running on port 8000.";
+        errMsg += "Backend server is unreachable. Please ensure the backend is running and properly configured.";
       } else if (error.response) {
         errMsg += error.response.data?.detail || `Server error (${error.response.status}).`;
       }
@@ -135,7 +135,7 @@ export default function Interview() {
       console.error("API Error evaluating interview:", error);
       let errMsg = "Failed to evaluate interview. ";
       if (error.code === 'ERR_NETWORK') {
-        errMsg += "Backend server is unreachable. Please ensure it is running on port 8000.";
+        errMsg += "Backend server is unreachable. Please ensure the backend is running and properly configured.";
       } else if (error.response) {
         errMsg += error.response.data?.detail || `Server error (${error.response.status}).`;
       }
