@@ -39,7 +39,14 @@ export default function Login() {
         navigate('/');
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Authentication failed. Please try again.");
+      console.error(err);
+      let errDetail = err.response?.data?.detail;
+      if (Array.isArray(errDetail)) {
+        errDetail = errDetail.map((e: any) => `${e.loc?.join('.') || 'Field'}: ${e.msg}`).join(', ');
+      } else if (typeof errDetail === 'object' && errDetail !== null) {
+        errDetail = JSON.stringify(errDetail);
+      }
+      setError(errDetail || "Authentication failed. Please try again.");
     } finally {
       setLoading(false);
     }
